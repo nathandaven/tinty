@@ -507,7 +507,7 @@ hook = "echo \"path: %f, operation: %o\""
     let missing_file = data_path.join(ARTIFACTS_DIR).join(symlink_name);
     write_to_file(&missing_file, "hello")?;
     let symlink = data_path.join(symlink_name);
-    std::os::unix::fs::symlink(&missing_file, &symlink)?;
+    symlink::symlink_auto(&missing_file, &symlink)?;
     // Regular file
     fs::remove_file(&missing_file)?;
 

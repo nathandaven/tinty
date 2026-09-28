@@ -9,7 +9,8 @@
 //! directory happens once at startup in `main`); they do no `~` expansion of
 //! their own.
 
-use crate::constants::{REPO_DIR, SCHEMES_REPO_NAME};
+use crate::config::ORG_NAME;
+use crate::constants::{REPO_DIR, REPO_NAME, SCHEMES_REPO_NAME};
 use std::path::{Path, PathBuf};
 
 /// The directory holding every installed repository: `<data_dir>/repos`.
@@ -27,3 +28,18 @@ pub fn item_repo_path(data_path: &Path, item_name: &str) -> PathBuf {
 pub fn schemes_repo_path(data_path: &Path) -> PathBuf {
     repos_dir(data_path).join(SCHEMES_REPO_NAME)
 }
+
+/// The tinty config directory: `<config_home>/tinted-theming/tinty`.
+pub fn config_dir() -> PathBuf {
+    let base = dirs::config_dir().or_else(dirs::data_dir)
+        .expect("unable to resolve config dir");
+    base.join(format!("{ORG_NAME}/{REPO_NAME}"))
+}
+
+/// The tinty data directory: `<data_home>/tinted-theming/tinty`.
+pub fn data_dir() -> PathBuf {
+    dirs::data_dir()
+        .expect("unable to resolve data dir")
+        .join(format!("{ORG_NAME}/{REPO_NAME}"))
+}
+

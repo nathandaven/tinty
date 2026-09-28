@@ -24,14 +24,13 @@ use crate::cli::{build_cli, get_matches};
 use anyhow::{anyhow, Context, Result};
 use clap::Command;
 use clap_complete::{generate, Generator, Shell};
-use config::{CONFIG_FILE_NAME, ORG_NAME};
+use config::CONFIG_FILE_NAME;
 use constants::{CUSTOM_SCHEMES_DIR_NAME, REPO_NAME};
 use operations::generate_scheme;
 use std::path::PathBuf;
 use std::string::String;
 use tinted_builder::{SchemeSystem, SchemeVariant};
 use utils::{ensure_directory_exists, replace_tilde_slash_with_home};
-use xdg::BaseDirectories;
 
 /// Entry point of the application.
 #[allow(clippy::too_many_lines)]
@@ -42,17 +41,12 @@ fn main() -> Result<()> {
     // Other configuration paths
     let config_path_result: Result<PathBuf> = matches.get_one::<String>("config").map_or_else(
         || {
-            let xdg_dirs = BaseDirectories::with_prefix(format!("{ORG_NAME}/{REPO_NAME}"));
-            xdg_dirs.map_or_else(
-                |_| Err(anyhow!("err")),
-                |xdg_dirs| {
-                    xdg_dirs
-                        .place_config_file(CONFIG_FILE_NAME)
-                        .context(format!(
-                            "Unable to create XDG_HOME/{ORG_NAME}/{REPO_NAME}/{CONFIG_FILE_NAME}",
-                        ))
-                },
-            )
+            let config_dir = paths::config_dir();
+            let config_path = config_dir.join(CONFIG_FILE_NAME);
+            ensure_directory_exists(&config_dir).with_context(|| {
+                format!("Unable to create config directory at {}", config_dir.display())
+            })?;
+            Ok(config_path)
         },
         |config_file_path| replace_tilde_slash_with_home(config_file_path),
     );
@@ -61,12 +55,7 @@ fn main() -> Result<()> {
     let data_path: PathBuf = if let Some(data_file_path) = matches.get_one::<String>("data-dir") {
         replace_tilde_slash_with_home(data_file_path)?
     } else {
-        let xdg_dirs = BaseDirectories::with_prefix(format!("{ORG_NAME}/{REPO_NAME}"));
-        if let Ok(xdg_dirs) = xdg_dirs {
-            xdg_dirs.get_data_home()
-        } else {
-            return Err(anyhow!("err"));
-        }
+        paths::data_dir()
     };
     let data_repo_path = paths::repos_dir(&data_path);
 

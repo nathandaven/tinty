@@ -4,7 +4,7 @@ use crate::paths;
 use crate::repo;
 use anyhow::{anyhow, Context, Result};
 use std::fs::{remove_file as remove_symlink, symlink_metadata};
-use std::os::unix::fs::symlink;
+use symlink::symlink_auto;
 use std::path::{Path, PathBuf};
 use url::Url;
 
@@ -54,7 +54,7 @@ fn install_dir(
                     if remove_symlink(data_item_path).is_err() {
                         return Err(anyhow!("Error trying to remove symlink at \"{}\". Remove it manually and try again", data_item_path.display()));
                     }
-                    symlink(item_path, data_item_path)?;
+                    symlink_auto(item_path, data_item_path)?;
 
                     if !is_quiet {
                         println!("{item_name} already installed");
@@ -66,7 +66,7 @@ fn install_dir(
             }
         }
     } else {
-        symlink(item_path, data_item_path)?;
+        symlink_auto(item_path, data_item_path)?;
 
         if !is_quiet {
             println!("{item_name} installed");

@@ -381,7 +381,7 @@ fn update_leaves_local_path_item_untouched() -> Result<()> {
     // `install` symlinks a local-path item into repos/<name>; emulate that.
     let repo_slot = data_path.join("repos").join(ITEM_NAME);
     fs::create_dir_all(repo_slot.parent().unwrap())?;
-    std::os::unix::fs::symlink(&live, &repo_slot)?;
+    symlink::symlink_auto(&live, &repo_slot)?;
 
     // A local-path item (NOT a URL) with allow-dirty on, to prove the flag does
     // not cause git to run against the user's directory.

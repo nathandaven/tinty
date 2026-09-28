@@ -384,7 +384,7 @@ impl Hook {
 }
 
 fn symlink_any(src: &Path, dst: &Path) -> Result<(), Error> {
-    std::os::unix::fs::symlink(src, dst)?;
+    symlink::symlink_auto(src, dst)?;
     Ok(())
 }
 
